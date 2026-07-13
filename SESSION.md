@@ -10,7 +10,7 @@ Current Branch:
 main
 
 Latest Commit:
-e38c1f7 feat: authentication
+9344417 feat: project api keys
 
 Current Milestone:
 Identity and Access
