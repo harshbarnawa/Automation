@@ -2,6 +2,8 @@ package http
 
 import (
 	"encoding/json"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,7 +16,7 @@ func TestHealthRoute(t *testing.T) {
 		Environment: "test",
 		Port:        "0",
 		ServiceName: "mintok-api",
-	})
+	}, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodGet, "/health", nil)

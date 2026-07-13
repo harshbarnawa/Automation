@@ -1,17 +1,19 @@
 package http
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/harshbarnawa/mintok/backend/internal/config"
+	applogger "github.com/harshbarnawa/mintok/backend/internal/logger"
 )
 
-func NewRouter(cfg config.Config) *gin.Engine {
+func NewRouter(cfg config.Config, log *slog.Logger) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
-	router.Use(gin.Logger(), gin.Recovery())
+	router.Use(applogger.RequestMiddleware(log), gin.Recovery())
 
 	router.GET("/health", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{

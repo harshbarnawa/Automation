@@ -86,6 +86,7 @@ Backend configuration is loaded from environment variables with local defaults:
 
 - `APP_ENV`
 - `SERVICE_NAME`
+- `LOG_LEVEL`
 - `PORT`
 - `DATABASE_URL`
 - `REDIS_URL`

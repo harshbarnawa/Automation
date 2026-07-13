@@ -9,6 +9,7 @@ type Config struct {
 	Environment        string
 	Port               string
 	ServiceName        string
+	LogLevel           string
 	DatabaseURL        string
 	RedisURL           string
 	CORSAllowedOrigins []string
@@ -25,6 +26,7 @@ func LoadWithLookup(lookup LookupFunc) Config {
 		Environment:        getEnv(lookup, "APP_ENV", "development"),
 		Port:               getEnv(lookup, "PORT", "8080"),
 		ServiceName:        getEnv(lookup, "SERVICE_NAME", "mintok-api"),
+		LogLevel:           getEnv(lookup, "LOG_LEVEL", "info"),
 		DatabaseURL:        getEnv(lookup, "DATABASE_URL", "postgres://mintok:mintok@localhost:5432/mintok?sslmode=disable"),
 		RedisURL:           getEnv(lookup, "REDIS_URL", "redis://localhost:6379/0"),
 		CORSAllowedOrigins: getListEnv(lookup, "CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
