@@ -20,6 +20,15 @@ type Store interface {
 	Create(ctx context.Context, userID, projectID, name, keyHash, keyPrefix string) (domain.APIKey, error)
 	ListByProject(ctx context.Context, userID, projectID string) ([]domain.APIKey, error)
 	Revoke(ctx context.Context, userID, projectID, keyID string) error
+	Authenticate(ctx context.Context, keyHash string) (string, error)
+}
+
+// Authenticate verifies an active gateway credential and returns its project ID.
+func (s *Service) Authenticate(ctx context.Context, plaintext string) (string, error) {
+	if !strings.HasPrefix(plaintext, "mintok_") {
+		return "", repository.ErrNotFound
+	}
+	return s.store.Authenticate(ctx, hash(plaintext))
 }
 
 // Service creates and manages project-scoped gateway credentials.

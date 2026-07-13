@@ -27,6 +27,9 @@ func (f *fakeStore) ListByProject(context.Context, string, string) ([]domain.API
 	return []domain.APIKey{f.created}, f.err
 }
 func (f *fakeStore) Revoke(context.Context, string, string, string) error { return f.err }
+func (f *fakeStore) Authenticate(_ context.Context, _ string) (string, error) {
+	return f.created.ProjectID, f.err
+}
 
 func TestCreateIssuesOpaqueKeyAndStoresOnlyHash(t *testing.T) {
 	store := &fakeStore{}

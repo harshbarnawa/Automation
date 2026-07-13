@@ -17,7 +17,7 @@
 
 ## Milestone 3 — Gateway MVP
 
-- [ ] OpenAI-compatible chat gateway endpoint
+- [x] OpenAI-compatible chat gateway endpoint
 - [ ] Provider adapter contract and request normalization
 - [ ] Provider credentials and per-project model configuration
 - [ ] Timeouts, retries, fallback, and request correlation IDs

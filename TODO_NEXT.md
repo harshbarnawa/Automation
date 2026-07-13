@@ -4,7 +4,7 @@ Identity and access
 
 Next
 
-Implement the OpenAI-compatible chat gateway endpoint.
+Implement the provider adapter contract and request normalization.
 
 Then
 

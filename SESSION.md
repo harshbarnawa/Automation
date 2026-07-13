@@ -24,7 +24,7 @@ Completed This Session
 
 Next Task
 
-- Implement the OpenAI-compatible chat gateway endpoint.
+- Implement the provider adapter contract and request normalization.
 
 Known Issues
 

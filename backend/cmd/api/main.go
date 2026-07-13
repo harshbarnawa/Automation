@@ -9,6 +9,7 @@ import (
 	"github.com/harshbarnawa/mintok/backend/internal/cache"
 	"github.com/harshbarnawa/mintok/backend/internal/config"
 	"github.com/harshbarnawa/mintok/backend/internal/database"
+	"github.com/harshbarnawa/mintok/backend/internal/gateway"
 	"github.com/harshbarnawa/mintok/backend/internal/http"
 	"github.com/harshbarnawa/mintok/backend/internal/logger"
 	"github.com/harshbarnawa/mintok/backend/internal/repository"
@@ -49,11 +50,13 @@ func main() {
 	authHandler := auth.NewHandler(authService, tokenManager, refreshTokens)
 	apiKeyService := apikey.NewService(repository.NewAPIKeyRepository(db))
 	apiKeyHandler := apikey.NewHandler(apiKeyService)
+	gatewayHandler := gateway.NewHandler(apiKeyService, gateway.NewUnavailableEngine())
 
 	router := http.NewRouter(cfg, log, http.Dependencies{
 		Auth:    authHandler,
 		APIKeys: apiKeyHandler,
 		Tokens:  tokenManager,
+		Gateway: gatewayHandler,
 	})
 
 	log.Info("starting api", "port", cfg.Port)

@@ -86,6 +86,23 @@ func (r *APIKeyRepository) Revoke(ctx context.Context, userID, projectID, keyID 
 	return nil
 }
 
+// Authenticate returns the project for an active API-key hash and records its use.
+func (r *APIKeyRepository) Authenticate(ctx context.Context, keyHash string) (string, error) {
+	var projectID string
+	err := r.pool.QueryRow(ctx, `
+		UPDATE api_keys SET last_used_at = now()
+		WHERE key_hash = $1 AND revoked_at IS NULL AND project_id IS NOT NULL
+		RETURNING project_id
+	`, keyHash).Scan(&projectID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", ErrNotFound
+	}
+	if err != nil {
+		return "", fmt.Errorf("authenticate api key: %w", err)
+	}
+	return projectID, nil
+}
+
 type apiKeyRow interface {
 	Scan(...any) error
 }

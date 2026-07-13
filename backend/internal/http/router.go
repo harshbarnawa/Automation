@@ -8,6 +8,7 @@ import (
 	"github.com/harshbarnawa/mintok/backend/internal/apikey"
 	"github.com/harshbarnawa/mintok/backend/internal/auth"
 	"github.com/harshbarnawa/mintok/backend/internal/config"
+	"github.com/harshbarnawa/mintok/backend/internal/gateway"
 	applogger "github.com/harshbarnawa/mintok/backend/internal/logger"
 )
 
@@ -17,6 +18,7 @@ type Dependencies struct {
 	Auth    *auth.Handler
 	APIKeys *apikey.Handler
 	Tokens  *auth.TokenManager
+	Gateway *gateway.Handler
 }
 
 func NewRouter(cfg config.Config, log *slog.Logger, deps Dependencies) *gin.Engine {
@@ -30,6 +32,9 @@ func NewRouter(cfg config.Config, log *slog.Logger, deps Dependencies) *gin.Engi
 	}
 	if deps.APIKeys != nil && deps.Tokens != nil {
 		deps.APIKeys.Register(router, deps.Tokens)
+	}
+	if deps.Gateway != nil {
+		deps.Gateway.Register(router)
 	}
 
 	router.GET("/health", func(ctx *gin.Context) {
