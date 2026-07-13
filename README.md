@@ -106,3 +106,13 @@ The initial migration creates the source-of-truth tables listed in `DATABASE_SCH
 ## Redis
 
 Redis is configured with `REDIS_URL` and is pinged during API startup.
+
+## Authentication
+
+Accounts are managed through the auth endpoints:
+
+- `POST /auth/register` - create an account with `email`, `name`, and `password` (min 8 characters). Passwords are hashed with bcrypt.
+- `POST /auth/login` - verify credentials and return the user profile.
+
+Both endpoints return the public user object without the password hash.
+

@@ -16,7 +16,7 @@ func TestHealthRoute(t *testing.T) {
 		Environment: "test",
 		Port:        "0",
 		ServiceName: "mintok-api",
-	}, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	}, slog.New(slog.NewTextHandler(io.Discard, nil)), Dependencies{})
 
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodGet, "/health", nil)

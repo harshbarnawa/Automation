@@ -11,7 +11,7 @@
 
 ## Milestone 2
 
-- [ ] Authentication
+- [x] Authentication
 - [ ] JWT
 - [ ] Refresh Tokens
 - [ ] OAuth
