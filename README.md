@@ -79,3 +79,18 @@ Services:
 - Backend API: `http://localhost:8080`
 - PostgreSQL: `localhost:5432`
 - Redis: `localhost:6379`
+
+## Configuration
+
+Backend configuration is loaded from environment variables with local defaults:
+
+- `APP_ENV`
+- `SERVICE_NAME`
+- `PORT`
+- `DATABASE_URL`
+- `REDIS_URL`
+- `CORS_ALLOWED_ORIGINS`
+
+Frontend configuration uses Vite environment variables:
+
+- `VITE_API_BASE_URL`

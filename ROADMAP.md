@@ -4,7 +4,7 @@
 
 - [x] Project Setup
 - [x] Docker
-- [ ] Config
+- [x] Config
 - [ ] Logger
 - [ ] Database
 - [ ] Redis
