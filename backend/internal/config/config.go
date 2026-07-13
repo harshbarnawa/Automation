@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -11,6 +12,7 @@ type Config struct {
 	ServiceName        string
 	LogLevel           string
 	DatabaseURL        string
+	DatabaseMaxConns   int32
 	RedisURL           string
 	CORSAllowedOrigins []string
 }
@@ -28,6 +30,7 @@ func LoadWithLookup(lookup LookupFunc) Config {
 		ServiceName:        getEnv(lookup, "SERVICE_NAME", "mintok-api"),
 		LogLevel:           getEnv(lookup, "LOG_LEVEL", "info"),
 		DatabaseURL:        getEnv(lookup, "DATABASE_URL", "postgres://mintok:mintok@localhost:5432/mintok?sslmode=disable"),
+		DatabaseMaxConns:   int32(getIntEnv(lookup, "DATABASE_MAX_CONNS", 10)),
 		RedisURL:           getEnv(lookup, "REDIS_URL", "redis://localhost:6379/0"),
 		CORSAllowedOrigins: getListEnv(lookup, "CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
 	}
@@ -40,6 +43,20 @@ func getEnv(lookup LookupFunc, key, fallback string) string {
 	}
 
 	return value
+}
+
+func getIntEnv(lookup LookupFunc, key string, fallback int) int {
+	value := strings.TrimSpace(lookup(key))
+	if value == "" {
+		return fallback
+	}
+
+	parsed, err := strconv.Atoi(value)
+	if err != nil || parsed <= 0 {
+		return fallback
+	}
+
+	return parsed
 }
 
 func getListEnv(lookup LookupFunc, key string, fallback []string) []string {

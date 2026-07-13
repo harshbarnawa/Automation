@@ -26,6 +26,10 @@ func TestLoadWithLookupUsesDefaults(t *testing.T) {
 		t.Fatalf("expected default log level info, got %q", cfg.LogLevel)
 	}
 
+	if cfg.DatabaseMaxConns != 10 {
+		t.Fatalf("expected default database max conns 10, got %d", cfg.DatabaseMaxConns)
+	}
+
 	expectedOrigins := []string{"http://localhost:3000"}
 	if !reflect.DeepEqual(cfg.CORSAllowedOrigins, expectedOrigins) {
 		t.Fatalf("expected default origins %v, got %v", expectedOrigins, cfg.CORSAllowedOrigins)
@@ -39,6 +43,7 @@ func TestLoadWithLookupUsesEnvironmentValues(t *testing.T) {
 		"SERVICE_NAME":         "mintok-test",
 		"LOG_LEVEL":            "debug",
 		"DATABASE_URL":         "postgres://user:pass@db:5432/app",
+		"DATABASE_MAX_CONNS":   "25",
 		"REDIS_URL":            "redis://cache:6379/2",
 		"CORS_ALLOWED_ORIGINS": "https://app.example.com, https://admin.example.com",
 	}
@@ -57,6 +62,10 @@ func TestLoadWithLookupUsesEnvironmentValues(t *testing.T) {
 
 	if cfg.DatabaseURL != values["DATABASE_URL"] {
 		t.Fatalf("expected configured database url, got %q", cfg.DatabaseURL)
+	}
+
+	if cfg.DatabaseMaxConns != 25 {
+		t.Fatalf("expected configured database max conns, got %d", cfg.DatabaseMaxConns)
 	}
 
 	if cfg.LogLevel != values["LOG_LEVEL"] {

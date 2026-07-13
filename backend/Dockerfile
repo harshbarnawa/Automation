@@ -16,6 +16,7 @@ USER mintok
 WORKDIR /app
 
 COPY --from=build /bin/mintok-api /app/mintok-api
+COPY --from=build /app/migrations /app/migrations
 
 EXPOSE 8080
 

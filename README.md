@@ -89,9 +89,16 @@ Backend configuration is loaded from environment variables with local defaults:
 - `LOG_LEVEL`
 - `PORT`
 - `DATABASE_URL`
+- `DATABASE_MAX_CONNS`
 - `REDIS_URL`
 - `CORS_ALLOWED_ORIGINS`
 
 Frontend configuration uses Vite environment variables:
 
 - `VITE_API_BASE_URL`
+
+## Database
+
+PostgreSQL schema migrations live in `backend/migrations`.
+
+The initial migration creates the source-of-truth tables listed in `DATABASE_SCHEMA.md`.

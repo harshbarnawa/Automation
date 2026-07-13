@@ -6,7 +6,7 @@
 - [x] Docker
 - [x] Config
 - [x] Logger
-- [ ] Database
+- [x] Database
 - [ ] Redis
 
 ## Milestone 2
