@@ -7,7 +7,7 @@
 - [x] Config
 - [x] Logger
 - [x] Database
-- [ ] Redis
+- [x] Redis
 
 ## Milestone 2
 

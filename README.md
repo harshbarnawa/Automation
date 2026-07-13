@@ -102,3 +102,7 @@ Frontend configuration uses Vite environment variables:
 PostgreSQL schema migrations live in `backend/migrations`.
 
 The initial migration creates the source-of-truth tables listed in `DATABASE_SCHEMA.md`.
+
+## Redis
+
+Redis is configured with `REDIS_URL` and is pinged during API startup.

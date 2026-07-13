@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/harshbarnawa/mintok/backend/internal/cache"
 	"github.com/harshbarnawa/mintok/backend/internal/config"
 	"github.com/harshbarnawa/mintok/backend/internal/database"
 	"github.com/harshbarnawa/mintok/backend/internal/http"
@@ -24,6 +25,15 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	redisClient, err := cache.NewRedisClient(ctx, cfg)
+	if err != nil {
+		log.Error("failed to connect redis", "error", err)
+		panic(err)
+	}
+	defer func() {
+		_ = redisClient.Close()
+	}()
 
 	if err := database.ApplyMigrations(ctx, db, "migrations"); err != nil {
 		log.Error("failed to apply database migrations", "error", err)
