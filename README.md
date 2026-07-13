@@ -64,3 +64,18 @@ npm run lint
 npm test
 npm run build
 ```
+
+## Docker
+
+Run the local stack:
+
+```sh
+docker compose up --build
+```
+
+Services:
+
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8080`
+- PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379`

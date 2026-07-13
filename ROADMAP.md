@@ -3,7 +3,7 @@
 ## Milestone 1
 
 - [x] Project Setup
-- [ ] Docker
+- [x] Docker
 - [ ] Config
 - [ ] Logger
 - [ ] Database
