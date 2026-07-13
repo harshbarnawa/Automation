@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Editors and OS files
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
+
+# Go
+*.test
+*.out
+*.exe
+.gocache/
