@@ -1,18 +1,6 @@
 # Mintok
 
-Mintok is an AI-powered developer productivity platform.
-
-It helps developers:
-
-- Analyze repositories
-- Improve code quality
-- Detect security issues
-- Generate documentation
-- Optimize performance
-- Explain code using AI
-- Review Pull Requests
-- Generate tests
-- Improve architecture
+Mintok is an AI Token Optimization Gateway. It provides one authenticated endpoint for AI requests, reducing token use and improving cost, latency, and reliability through prompt optimization, routing, caching, benchmarking, and analytics.
 
 ## Tech Stack
 
@@ -111,8 +99,13 @@ Redis is configured with `REDIS_URL` and is pinged during API startup.
 
 Accounts are managed through the auth endpoints:
 
-- `POST /auth/register` - create an account with `email`, `name`, and `password` (min 8 characters). Passwords are hashed with bcrypt.
-- `POST /auth/login` - verify credentials and return the user profile.
+- `POST /auth/register` - create an account with `email`, `name`, and `password` (min 8 characters). Passwords are hashed with bcrypt and an access token is returned.
+- `POST /auth/login` - verify credentials and return a public user profile plus an access token.
+- `POST /auth/refresh` - exchange a single-use refresh token for a new access and refresh token pair.
+- `GET /auth/me` - validate a bearer access token and return the authenticated user ID.
 
-Both endpoints return the public user object without the password hash.
+Authentication responses never include a password hash.
 
+## Project API keys
+
+Dashboard users can create gateway credentials for projects they own with `POST /projects/:project_id/api-keys`. Use a JWT bearer access token to manage keys. Mintok returns the plaintext key only at creation time and persists only its hash; list and revoke credentials with the corresponding `GET` and `DELETE` project API-key endpoints.

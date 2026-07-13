@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/harshbarnawa/mintok/backend/internal/apikey"
 	"github.com/harshbarnawa/mintok/backend/internal/auth"
 	"github.com/harshbarnawa/mintok/backend/internal/config"
 	applogger "github.com/harshbarnawa/mintok/backend/internal/logger"
@@ -13,7 +14,9 @@ import (
 // Dependencies carries the wired-up services the router mounts as routes.
 // Fields may be nil, in which case their routes are not registered.
 type Dependencies struct {
-	Auth *auth.Handler
+	Auth    *auth.Handler
+	APIKeys *apikey.Handler
+	Tokens  *auth.TokenManager
 }
 
 func NewRouter(cfg config.Config, log *slog.Logger, deps Dependencies) *gin.Engine {
@@ -24,6 +27,9 @@ func NewRouter(cfg config.Config, log *slog.Logger, deps Dependencies) *gin.Engi
 
 	if deps.Auth != nil {
 		deps.Auth.Register(router)
+	}
+	if deps.APIKeys != nil && deps.Tokens != nil {
+		deps.APIKeys.Register(router, deps.Tokens)
 	}
 
 	router.GET("/health", func(ctx *gin.Context) {

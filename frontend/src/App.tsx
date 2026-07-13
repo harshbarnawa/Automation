@@ -1,8 +1,8 @@
 const capabilities = [
-  "Repository analysis",
-  "Code quality insights",
-  "Security scanning",
-  "AI documentation",
+  "Prompt compression",
+  "Intelligent model routing",
+  "Response caching",
+  "Token and cost analytics",
 ];
 
 export function App() {
@@ -13,11 +13,12 @@ export function App() {
           Mintok
         </p>
         <h1 className="mt-4 max-w-3xl text-5xl font-semibold leading-tight">
-          AI-powered developer productivity for healthier repositories.
+          The AI Token Optimization Gateway.
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
-          Analyze codebases, surface quality and security issues, generate
-          documentation, and prepare pull request insights from one workspace.
+          Send requests through one secure AI gateway to reduce token use, route
+          prompts to the right model, cache responses, and understand AI cost
+          and performance.
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {capabilities.map((capability) => (

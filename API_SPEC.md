@@ -2,24 +2,30 @@ POST /auth/register
 
 POST /auth/login
 
-GET /user
+POST /auth/refresh
 
-PUT /user
+GET /auth/me
 
-POST /project
+## Project API keys
 
-GET /project
+All API-key management endpoints require a dashboard JWT bearer token.
 
-POST /repository/connect
+POST /projects/:project_id/api-keys
 
-POST /analysis/start
+Creates a project-scoped gateway credential. The plaintext `key` is returned only in this response; Mintok stores only its hash. Request body: `{"name": "Production"}`.
 
-GET /analysis/:id
+GET /projects/:project_id/api-keys
 
-POST /optimization
+Returns API-key metadata, including a non-sensitive prefix and revocation state.
 
-POST /documentation
+DELETE /projects/:project_id/api-keys/:key_id
 
-POST /security
+Revokes an active API key. Revoked keys cannot be used by gateway clients.
 
-GET /dashboard
+Planned gateway API
+
+POST /v1/chat/completions
+
+GET /v1/analytics/usage
+
+POST /v1/benchmarks

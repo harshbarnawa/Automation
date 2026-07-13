@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/harshbarnawa/mintok/backend/internal/apikey"
 	"github.com/harshbarnawa/mintok/backend/internal/auth"
 	"github.com/harshbarnawa/mintok/backend/internal/cache"
 	"github.com/harshbarnawa/mintok/backend/internal/config"
@@ -43,10 +44,16 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	authService := auth.NewService(userRepo, auth.NewBcryptHasher(0))
-	authHandler := auth.NewHandler(authService)
+	tokenManager := auth.NewTokenManager(cfg.JWTSecret, cfg.JWTAccessTTL, cfg.ServiceName)
+	refreshTokens := auth.NewRefreshTokenManager(repository.NewRefreshTokenRepository(db), cfg.JWTRefreshTTL)
+	authHandler := auth.NewHandler(authService, tokenManager, refreshTokens)
+	apiKeyService := apikey.NewService(repository.NewAPIKeyRepository(db))
+	apiKeyHandler := apikey.NewHandler(apiKeyService)
 
 	router := http.NewRouter(cfg, log, http.Dependencies{
-		Auth: authHandler,
+		Auth:    authHandler,
+		APIKeys: apiKeyHandler,
+		Tokens:  tokenManager,
 	})
 
 	log.Info("starting api", "port", cfg.Port)

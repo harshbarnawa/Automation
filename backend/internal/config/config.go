@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -15,6 +16,9 @@ type Config struct {
 	DatabaseMaxConns   int32
 	RedisURL           string
 	CORSAllowedOrigins []string
+	JWTSecret          string
+	JWTAccessTTL       time.Duration
+	JWTRefreshTTL      time.Duration
 }
 
 type LookupFunc func(string) string
@@ -33,6 +37,9 @@ func LoadWithLookup(lookup LookupFunc) Config {
 		DatabaseMaxConns:   int32(getIntEnv(lookup, "DATABASE_MAX_CONNS", 10)),
 		RedisURL:           getEnv(lookup, "REDIS_URL", "redis://localhost:6379/0"),
 		CORSAllowedOrigins: getListEnv(lookup, "CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
+		JWTSecret:          getEnv(lookup, "JWT_SECRET", "mintok-development-secret"),
+		JWTAccessTTL:       time.Duration(getIntEnv(lookup, "JWT_ACCESS_TTL_MINUTES", 15)) * time.Minute,
+		JWTRefreshTTL:      time.Duration(getIntEnv(lookup, "JWT_REFRESH_TTL_HOURS", 720)) * time.Hour,
 	}
 }
 

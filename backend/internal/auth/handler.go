@@ -10,18 +10,22 @@ import (
 
 // Handler exposes the authentication HTTP endpoints.
 type Handler struct {
-	service *Service
+	service       *Service
+	tokens        *TokenManager
+	refreshTokens *RefreshTokenManager
 }
 
 // NewHandler builds an auth Handler.
-func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
+func NewHandler(service *Service, tokens *TokenManager, refreshTokens *RefreshTokenManager) *Handler {
+	return &Handler{service: service, tokens: tokens, refreshTokens: refreshTokens}
 }
 
 // Register wires the auth routes onto the given router group.
 func (h *Handler) Register(group gin.IRoutes) {
 	group.POST("/auth/register", h.register)
 	group.POST("/auth/login", h.login)
+	group.POST("/auth/refresh", h.refresh)
+	group.GET("/auth/me", Middleware(h.tokens), h.me)
 }
 
 type registerRequest struct {
@@ -35,6 +39,10 @@ type loginRequest struct {
 	Password string `json:"password"`
 }
 
+type refreshRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
 // UserResponse is the public JSON representation of a user.
 type UserResponse struct {
 	ID        string `json:"id"`
@@ -42,6 +50,14 @@ type UserResponse struct {
 	Name      string `json:"name"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
+}
+
+type authenticationResponse struct {
+	User         UserResponse `json:"user"`
+	AccessToken  string       `json:"access_token"`
+	RefreshToken string       `json:"refresh_token"`
+	TokenType    string       `json:"token_type"`
+	ExpiresIn    int64        `json:"expires_in"`
 }
 
 // NewUserResponse converts a domain user into its public representation.
@@ -72,7 +88,7 @@ func (h *Handler) register(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"user": NewUserResponse(user)})
+	h.writeAuthenticationResponse(ctx, http.StatusCreated, user)
 }
 
 func (h *Handler) login(ctx *gin.Context) {
@@ -91,7 +107,69 @@ func (h *Handler) login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"user": NewUserResponse(user)})
+	h.writeAuthenticationResponse(ctx, http.StatusOK, user)
+}
+
+func (h *Handler) me(ctx *gin.Context) {
+	userID, ok := UserIDFromContext(ctx)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthenticated"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"user_id": userID})
+}
+
+func (h *Handler) refresh(ctx *gin.Context) {
+	var req refreshRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	userID, refreshToken, err := h.refreshTokens.Rotate(ctx.Request.Context(), req.RefreshToken)
+	if err != nil {
+		if errors.Is(err, ErrInvalidRefreshToken) {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired refresh token"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	accessToken, err := h.tokens.Generate(userID, "")
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+		"token_type":    "Bearer",
+		"expires_in":    int64(h.tokens.AccessTTL().Seconds()),
+	})
+}
+
+func (h *Handler) writeAuthenticationResponse(ctx *gin.Context, status int, user domain.User) {
+	accessToken, err := h.tokens.Generate(user.ID, user.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+	refreshToken, err := h.refreshTokens.Issue(ctx.Request.Context(), user.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	ctx.JSON(status, authenticationResponse{
+		User:         NewUserResponse(user),
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		TokenType:    "Bearer",
+		ExpiresIn:    int64(h.tokens.AccessTTL().Seconds()),
+	})
 }
 
 func writeAuthError(ctx *gin.Context, err error) {

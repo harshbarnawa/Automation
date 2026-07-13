@@ -30,6 +30,10 @@ func TestLoadWithLookupUsesDefaults(t *testing.T) {
 		t.Fatalf("expected default database max conns 10, got %d", cfg.DatabaseMaxConns)
 	}
 
+	if cfg.JWTRefreshTTL.Hours() != 720 {
+		t.Fatalf("expected default refresh TTL of 720 hours, got %v", cfg.JWTRefreshTTL)
+	}
+
 	expectedOrigins := []string{"http://localhost:3000"}
 	if !reflect.DeepEqual(cfg.CORSAllowedOrigins, expectedOrigins) {
 		t.Fatalf("expected default origins %v, got %v", expectedOrigins, cfg.CORSAllowedOrigins)
@@ -38,14 +42,15 @@ func TestLoadWithLookupUsesDefaults(t *testing.T) {
 
 func TestLoadWithLookupUsesEnvironmentValues(t *testing.T) {
 	values := map[string]string{
-		"APP_ENV":              "production",
-		"PORT":                 "9090",
-		"SERVICE_NAME":         "mintok-test",
-		"LOG_LEVEL":            "debug",
-		"DATABASE_URL":         "postgres://user:pass@db:5432/app",
-		"DATABASE_MAX_CONNS":   "25",
-		"REDIS_URL":            "redis://cache:6379/2",
-		"CORS_ALLOWED_ORIGINS": "https://app.example.com, https://admin.example.com",
+		"APP_ENV":               "production",
+		"PORT":                  "9090",
+		"SERVICE_NAME":          "mintok-test",
+		"LOG_LEVEL":             "debug",
+		"DATABASE_URL":          "postgres://user:pass@db:5432/app",
+		"DATABASE_MAX_CONNS":    "25",
+		"REDIS_URL":             "redis://cache:6379/2",
+		"CORS_ALLOWED_ORIGINS":  "https://app.example.com, https://admin.example.com",
+		"JWT_REFRESH_TTL_HOURS": "48",
 	}
 
 	cfg := LoadWithLookup(func(key string) string {
@@ -70,6 +75,10 @@ func TestLoadWithLookupUsesEnvironmentValues(t *testing.T) {
 
 	if cfg.LogLevel != values["LOG_LEVEL"] {
 		t.Fatalf("expected configured log level, got %q", cfg.LogLevel)
+	}
+
+	if cfg.JWTRefreshTTL.Hours() != 48 {
+		t.Fatalf("expected configured refresh TTL, got %v", cfg.JWTRefreshTTL)
 	}
 
 	expectedOrigins := []string{"https://app.example.com", "https://admin.example.com"}

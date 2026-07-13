@@ -9,7 +9,7 @@ describe("App", () => {
 
     expect(screen.getByText("Mintok")).toBeInTheDocument();
     expect(
-      screen.getByText(/AI-powered developer productivity/i),
+      screen.getByText(/AI Token Optimization Gateway/i),
     ).toBeInTheDocument();
   });
 });

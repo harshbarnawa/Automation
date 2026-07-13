@@ -1,49 +1,64 @@
 # Mintok Roadmap
 
-## Milestone 1
+## Milestone 1 — Platform Foundation
 
-- [x] Project Setup
-- [x] Docker
-- [x] Config
-- [x] Logger
-- [x] Database
-- [x] Redis
+- [x] Project setup
+- [x] Docker local stack
+- [x] Configuration and structured logging
+- [x] PostgreSQL and Redis connectivity
 
-## Milestone 2
+## Milestone 2 — Identity and Access
 
-- [x] Authentication
-- [ ] JWT
-- [ ] Refresh Tokens
-- [ ] OAuth
+- [x] Account registration and password login
+- [x] JWT access tokens
+- [x] Refresh-token rotation
+- [x] Project API keys
+- [ ] OAuth and SSO
 
-## Milestone 3
+## Milestone 3 — Gateway MVP
 
-- [ ] Dashboard
+- [ ] OpenAI-compatible chat gateway endpoint
+- [ ] Provider adapter contract and request normalization
+- [ ] Provider credentials and per-project model configuration
+- [ ] Timeouts, retries, fallback, and request correlation IDs
 
-## Milestone 4
+## Milestone 4 — Token Optimization
 
-- [ ] Repository Analysis
+- [ ] Token estimation and request metering
+- [ ] Prompt compression with opt-out and protected sections
+- [ ] Savings reporting per request and project
 
-## Milestone 5
+## Milestone 5 — Prompt Routing and Caching
 
-- [ ] AI Optimization
+- [ ] Policy-based model routing
+- [ ] Exact-match response cache
+- [ ] Semantic cache and cache controls
+- [ ] Budget, latency, and availability fallback rules
 
-## Milestone 6
+## Milestone 6 — Analytics
 
-- [ ] AI Documentation
+- [ ] Gateway request logs with redaction
+- [ ] Cost, token, latency, compression, and cache metrics
+- [ ] Project dashboard and exportable reports
 
-## Milestone 7
+## Milestone 7 — Model Benchmarking
 
-- [ ] Security Scanner
+- [ ] Benchmark suite definition
+- [ ] Multi-model benchmark execution
+- [ ] Quality, cost, latency comparison and routing recommendations
 
-## Milestone 8
+## Milestone 8 — Teams and Governance
 
-- [ ] Performance Analyzer
+- [ ] Organizations, projects, roles, and audit logs
+- [ ] Usage limits, quotas, and alerting
+- [ ] Data retention and privacy controls
 
-## Milestone 9
+## Milestone 9 — Production Readiness
 
-- [ ] Team Workspace
+- [ ] Provider health monitoring and circuit breaking
+- [ ] Deployment automation, observability, and backups
+- [ ] Security review and load testing
 
-## Milestone 10
+## Current Task
 
-- [ ] Deployment
+Implement the OpenAI-compatible chat gateway endpoint.

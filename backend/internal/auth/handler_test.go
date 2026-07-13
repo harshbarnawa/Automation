@@ -13,7 +13,7 @@ import (
 func newTestHandler() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	svc := NewService(newFakeUserRepo(), NewBcryptHasher(4))
-	handler := NewHandler(svc)
+	handler := NewHandler(svc, NewTokenManager("test-secret", 0, "mintok-test"), NewRefreshTokenManager(newFakeRefreshTokenStore(), 0))
 
 	router := gin.New()
 	handler.Register(router)
@@ -49,7 +49,9 @@ func TestRegisterEndpoint(t *testing.T) {
 	}
 
 	var body struct {
-		User UserResponse `json:"user"`
+		User         UserResponse `json:"user"`
+		AccessToken  string       `json:"access_token"`
+		RefreshToken string       `json:"refresh_token"`
 	}
 	if err := json.Unmarshal(recorder.Body.Bytes(), &body); err != nil {
 		t.Fatalf("decode response: %v", err)
@@ -59,6 +61,35 @@ func TestRegisterEndpoint(t *testing.T) {
 	}
 	if body.User.ID == "" {
 		t.Fatal("expected user id in response")
+	}
+	if body.AccessToken == "" {
+		t.Fatal("expected access token in response")
+	}
+	if body.RefreshToken == "" {
+		t.Fatal("expected refresh token in response")
+	}
+}
+
+func TestRefreshEndpointRotatesToken(t *testing.T) {
+	router := newTestHandler()
+	registration := doJSON(t, router, http.MethodPost, "/auth/register", gin.H{
+		"email": "refresh@example.com", "name": "Refresh", "password": "supersecret",
+	})
+
+	var registered struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+	if err := json.Unmarshal(registration.Body.Bytes(), &registered); err != nil {
+		t.Fatalf("decode registration: %v", err)
+	}
+
+	refresh := doJSON(t, router, http.MethodPost, "/auth/refresh", gin.H{"refresh_token": registered.RefreshToken})
+	if refresh.Code != http.StatusOK {
+		t.Fatalf("expected refresh 200, got %d: %s", refresh.Code, refresh.Body.String())
+	}
+
+	if reused := doJSON(t, router, http.MethodPost, "/auth/refresh", gin.H{"refresh_token": registered.RefreshToken}); reused.Code != http.StatusUnauthorized {
+		t.Fatalf("expected reused token 401, got %d", reused.Code)
 	}
 }
 
@@ -102,6 +133,49 @@ func TestLoginEndpoint(t *testing.T) {
 	})
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d: %s", recorder.Code, recorder.Body.String())
+	}
+
+	var body struct {
+		AccessToken string `json:"access_token"`
+	}
+	if err := json.Unmarshal(recorder.Body.Bytes(), &body); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if body.AccessToken == "" {
+		t.Fatal("expected access token in response")
+	}
+}
+
+func TestMeEndpoint(t *testing.T) {
+	router := newTestHandler()
+	register := gin.H{"email": "me@example.com", "name": "Me", "password": "supersecret"}
+	registration := doJSON(t, router, http.MethodPost, "/auth/register", register)
+
+	var body struct {
+		User        UserResponse `json:"user"`
+		AccessToken string       `json:"access_token"`
+	}
+	if err := json.Unmarshal(registration.Body.Bytes(), &body); err != nil {
+		t.Fatalf("decode registration: %v", err)
+	}
+
+	request := httptest.NewRequest(http.MethodGet, "/auth/me", nil)
+	request.Header.Set("Authorization", "Bearer "+body.AccessToken)
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", recorder.Code, recorder.Body.String())
+	}
+}
+
+func TestMeEndpointRequiresToken(t *testing.T) {
+	router := newTestHandler()
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/auth/me", nil))
+
+	if recorder.Code != http.StatusUnauthorized {
+		t.Fatalf("expected 401, got %d", recorder.Code)
 	}
 }
 
